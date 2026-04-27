@@ -15,6 +15,8 @@ func PrintHelpTopic(topic string) {
 		printXAIHelp()
 	case "openai", "gpt-image":
 		printOpenAIHelp()
+	case "codex", "chatgpt":
+		printCodexHelp()
 	default:
 		fmt.Fprintf(os.Stderr, "unknown help topic: %q\n\n", topic)
 		PrintHelp()
@@ -128,6 +130,71 @@ or ~/.imagen/.env.
     imagen -m grok -s 2K -a 16:9 "sunset over mountains"
     imagen -m grok -a 2:1 "cinematic landscape"
     imagen -m grok -r photo.jpg "turn this into a watercolor painting"
+`)
+}
+
+func printCodexHelp() {
+	fmt.Print(`# OpenAI Codex / ChatGPT Image Generation
+
+## Authentication
+
+Environment variables (checked in order):
+
+    CODEX_ACCESS_TOKEN     ChatGPT/Codex access token (from browser devtools)
+    CHATGPT_ACCESS_TOKEN   Fallback token name
+
+Also reads from .env files in the current directory, the binary directory,
+or ~/.imagen/.env.
+
+To obtain a token:
+  1. Log in to https://chatgpt.com in your browser
+  2. Open browser DevTools (F12) → Application/Storage → Cookies
+  3. Find the __Secure-next-auth.session-token or similar auth cookie
+  4. Or use the Network tab, find a request to /backend-api/, copy the
+     Authorization: Bearer <token> header value
+
+## Models
+
+    codex-2        gpt-image-2-medium   (default, balanced)
+    codex-2-low    gpt-image-2-low      (fast, lowest cost)
+    codex-2-medium gpt-image-2-medium   (balanced)
+    codex-2-high   gpt-image-2-high     (highest fidelity)
+
+All tiers use gpt-image-2 under the hood; the alias selects quality level.
+
+## Supported Parameters
+
+    --size SIZE
+        512, 1K, 2K, 4K  (default: 1K)
+        Native sizes: 1024x1024, 1536x1024, 1024x1536.
+        Abstract sizes are mapped to the closest native size.
+
+    --aspect RATIO
+        Used to select landscape (1536x1024) or portrait (1024x1536).
+        Not a native parameter; ignored if a specific size is given.
+
+    -t, --transparent
+        Sets background=transparent.
+
+    --quality LEVEL
+        low, medium, high
+        Each tier alias already sets a quality; this flag overrides it.
+
+    -n, --count N
+        Only 1 image per request is supported by the Codex API.
+
+## Unsupported Parameters
+
+The following CLI flags are accepted but ignored:
+
+    --seed, --person, --thinking, --ref
+
+## Examples
+
+    imagen -m codex-2 "a cute baby sea otter"
+    imagen -m codex/codex-2-high "a futuristic city"
+    imagen -m codex-2 -s 1K -a 16:9 "sunset over mountains"
+    imagen -m codex-2 -t "logo for a coffee shop"
 `)
 }
 

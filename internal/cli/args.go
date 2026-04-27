@@ -240,11 +240,11 @@ Usage:
 
 Options:
   -h, --help            Show this help message
-  help <topic>          Show provider-specific help (google, grok, openai)
+  help <topic>          Show provider-specific help (google, grok, openai, codex)
   -o, --output NAME     Output file base name (default: imagen-<timestamp>)
   -s, --size SIZE       Image size: 512, 1K, 2K, 4K (default: 1K)
   -a, --aspect RATIO    Aspect ratio (e.g. 16:9, 4:3, 1:1)
-  -m, --model MODEL     Model or alias: flash, pro, grok, oai-2 (default: google/flash)
+  -m, --model MODEL     Model or alias: flash, pro, grok, oai-2, codex-2 (default: google/flash)
   -n, --count N         Number of images to generate (default: 1)
   -d, --dir DIR         Output directory (default: current directory)
   -r, --ref FILE        Reference image (can be repeated)
@@ -252,8 +252,8 @@ Options:
       --seed N          Random seed for reproducible generation
       --person MODE     Person generation: ALL, ADULT, NONE (google only)
       --thinking LEVEL  Thinking level: minimal, low, medium, high (flash only)
-      --quality LEVEL   Output quality: low, medium, high (grok only)
-      --api-key KEY     API key (or set GEMINI_API_KEY / XAI_API_KEY / OPENAI_API_KEY)
+      --quality LEVEL   Output quality: low, medium, high (grok, codex)
+      --api-key KEY     API key (or set GEMINI_API_KEY / XAI_API_KEY / OPENAI_API_KEY / CODEX_ACCESS_TOKEN)
       --costs           Show accumulated cost summary
       --json            JSON output mode
       --plain           Plain output mode (filenames only)
@@ -268,6 +268,7 @@ Examples:
   imagen -s 2K -a 16:9 "sunset over mountains"
   imagen -m xai/grok "a futuristic city"
   imagen -m openai/gpt-image-2 "a cute baby sea otter"
+  imagen -m codex-2 "a futuristic city"
   imagen -r style.png "apply this style to a forest"
   imagen --json "logo for a coffee shop" | jq .files
   imagen --costs
@@ -276,6 +277,7 @@ Envs:
   GEMINI_API_KEY        API key for Google Gemini models
   XAI_API_KEY           API key for xAI Grok models
   OPENAI_API_KEY        API key for OpenAI image models
+  CODEX_ACCESS_TOKEN    ChatGPT/Codex access token (for codex provider)
 
 Supported Models:
   google/gemini-2.5-flash-image            aliases: nb
@@ -284,11 +286,15 @@ Supported Models:
   xai/grok-imagine-image                   aliases: grok, grok-imagine
   openai/gpt-image-2                       gpt-image-2-2026-04-21 (alias: oai-2)
   openai/gpt-image-1.5                     gpt-image-1.5 (alias: oai-15)
+  codex/codex-2                            gpt-image-2-medium (default)
+  codex/codex-2-low                        gpt-image-2-low
+  codex/codex-2-high                       gpt-image-2-high
 
 Help Topics:
   google, gemini           Google Gemini provider details
   grok, xai                xAI Grok provider details
   openai, gpt-image        OpenAI image generation provider details
+  codex, chatgpt           ChatGPT/Codex image generation provider details
 `)
 }
 

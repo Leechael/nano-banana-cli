@@ -18,6 +18,7 @@ import (
 	"github.com/leechael/imagen/provider"
 
 	// Register providers via init().
+	_ "github.com/leechael/imagen/provider/codex"
 	_ "github.com/leechael/imagen/provider/google"
 	_ "github.com/leechael/imagen/provider/openai"
 	_ "github.com/leechael/imagen/provider/xai"
@@ -344,6 +345,23 @@ func resolveAPIKey(flagKey, providerName string) (string, error) {
 			}
 		}
 		return "", errors.New("OPENAI_API_KEY is required")
+	case "codex":
+		if v := strings.TrimSpace(os.Getenv("CODEX_ACCESS_TOKEN")); v != "" {
+			return v, nil
+		}
+		if v := strings.TrimSpace(os.Getenv("CHATGPT_ACCESS_TOKEN")); v != "" {
+			return v, nil
+		}
+		paths := dotEnvPaths()
+		for _, p := range paths {
+			if v := icli.ReadDotEnvValue(p, "CODEX_ACCESS_TOKEN"); v != "" {
+				return v, nil
+			}
+			if v := icli.ReadDotEnvValue(p, "CHATGPT_ACCESS_TOKEN"); v != "" {
+				return v, nil
+			}
+		}
+		return "", errors.New("CODEX_ACCESS_TOKEN is required (copy from ChatGPT browser devtools)")
 	default:
 		return "", fmt.Errorf("no API key resolution defined for provider %q", providerName)
 	}

@@ -28,10 +28,16 @@ var aliases = map[string]map[string]string{
 		"oai-2":                "gpt-image-2-2026-04-21",
 		"oai-15":               "gpt-image-1.5",
 	},
+	"codex": {
+		"codex-2":        "gpt-image-2-medium",
+		"codex-2-low":    "gpt-image-2-low",
+		"codex-2-medium": "gpt-image-2-medium",
+		"codex-2-high":   "gpt-image-2-high",
+	},
 }
 
 // providerOrder defines deterministic resolution order for bare aliases.
-var providerOrder = []string{"google", "xai", "openai"}
+var providerOrder = []string{"google", "xai", "openai", "codex"}
 
 var registry = map[string]func(apiKey string) Provider{}
 
