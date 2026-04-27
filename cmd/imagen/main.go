@@ -131,6 +131,10 @@ func main() {
 		icli.LogLine(opts.OutputMode, "warn", "%s", w)
 	}
 
+	if opts.OutputMode == icli.ModeHuman {
+		logConfig(opts, providerName, modelID, len(genReq.References))
+	}
+
 	icli.LogLine(opts.OutputMode, "info", "generating image...")
 	res, err := prov.Generate(context.Background(), genReq)
 	if err != nil {
@@ -243,6 +247,36 @@ func main() {
 			fmt.Fprintf(os.Stderr, "  + %s\n", f)
 		}
 	}
+}
+
+func logConfig(opts icli.Options, providerName, modelID string, refCount int) {
+	icli.LogLine(opts.OutputMode, "info", "provider: %s, model: %s", providerName, modelID)
+	prompt := opts.Prompt
+	if len(prompt) > 80 {
+		prompt = prompt[:77] + "..."
+	}
+	icli.LogLine(opts.OutputMode, "info", "prompt: %s", prompt)
+	parts := []string{fmt.Sprintf("size: %s", opts.Size)}
+	if opts.AspectRatio != "" {
+		parts = append(parts, fmt.Sprintf("aspect: %s", opts.AspectRatio))
+	}
+	parts = append(parts, fmt.Sprintf("count: %d", opts.Count))
+	if opts.Seed != nil {
+		parts = append(parts, fmt.Sprintf("seed: %d", *opts.Seed))
+	}
+	if opts.PersonGeneration != "" {
+		parts = append(parts, fmt.Sprintf("person: %s", opts.PersonGeneration))
+	}
+	if opts.ThinkingLevel != "" {
+		parts = append(parts, fmt.Sprintf("thinking: %s", opts.ThinkingLevel))
+	}
+	if opts.Transparent {
+		parts = append(parts, "transparent: true")
+	}
+	if refCount > 0 {
+		parts = append(parts, fmt.Sprintf("references: %d", refCount))
+	}
+	icli.LogLine(opts.OutputMode, "info", strings.Join(parts, ", "))
 }
 
 func resolveAPIKey(flagKey, providerName string) (string, error) {
