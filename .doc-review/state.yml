@@ -1,0 +1,50 @@
+# Documentation review state for imagen
+# This file tracks documentation health and review progress.
+# Commit it to version control alongside code changes.
+version: 1
+last_run: 2026-04-27T23:30:00Z
+docs_root: .
+documents:
+  README.md:
+    phase: 0
+    baseline: 2026-04-27T23:30:00Z
+    structure: null
+    copy: null
+    consistency: null
+    issues: 4
+    deferred: []
+  skills/nano-banana-image/SKILL.md:
+    phase: 0
+    baseline: 2026-04-27T23:30:00Z
+    structure: null
+    copy: null
+    consistency: null
+    issues: 0
+    deferred: []
+  skills/nano-banana-image/references/installation.md:
+    phase: 0
+    baseline: 2026-04-27T23:30:00Z
+    structure: null
+    copy: null
+    consistency: null
+    issues: 0
+    deferred: []
+  skills/README.md:
+    phase: 0
+    baseline: 2026-04-27T23:30:00Z
+    structure: null
+    copy: null
+    consistency: null
+    issues: 0
+    deferred: []
+terminology:
+  preferred:
+    imagen: []
+    "GPT Image 2": [gpt-image-2]
+    DALL-E: [dall-e-2, dall-e-3]
+    Codex: ["ChatGPT/Codex"]
+  rejected:
+    "green screen": "use green-screen (adjective) or green screen (noun) consistently"
+audience:
+  primary: "Developers who want a CLI or Go library for multi-provider image generation"
+  prerequisites: ["Go", "command-line tools", "API key management"]
