@@ -1,4 +1,4 @@
-module nano-banana-image-skill
+module github.com/leechael/imagen
 
 go 1.25.0
 

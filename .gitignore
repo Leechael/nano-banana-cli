@@ -3,6 +3,7 @@
 *.png
 .DS_Store
 /nano-banana
+/imagen
 bin/
 dist/
 nano-banana-2-skill/

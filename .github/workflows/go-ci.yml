@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOFLAGS: -buildvcs=false
-      BUILD_TARGET: ./cmd/nano-banana
+      BUILD_TARGET: ./cmd/imagen
       BDD_TEST_CMD: go test -tags=bdd ./tests/bdd/... -count=1
     steps:
       - name: Checkout

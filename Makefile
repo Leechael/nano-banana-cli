@@ -1,8 +1,8 @@
-BINARY_NAME := nano-banana
+BINARY_NAME := imagen
 BIN_DIR := bin
 BIN_PATH := $(BIN_DIR)/$(BINARY_NAME)
 OUT_DIR := dist
-CMD := ./cmd/nano-banana
+CMD := ./cmd/imagen
 GOFLAGS ?= -buildvcs=false
 
 export GOFLAGS
