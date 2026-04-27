@@ -95,6 +95,8 @@ Environment variables (checked in order):
     XAI_API_KEY     Primary API key for xAI Grok
     GROK_API_KEY    Fallback API key (also accepted)
 
+    XAI_BASE_URL    Override API base URL (default: https://api.x.ai/v1)
+
 Also reads from .env files in the current directory, the binary directory,
 or ~/.imagen/.env.
 
@@ -142,6 +144,9 @@ Environment variables (checked in order):
 
     CODEX_ACCESS_TOKEN     ChatGPT/Codex access token (from browser devtools)
     CHATGPT_ACCESS_TOKEN   Fallback token name
+
+    CODEX_BASE_URL         Override API base URL
+                           (default: https://chatgpt.com/backend-api/codex)
 
 Also reads from .env files in the current directory, the binary directory,
 or ~/.imagen/.env.
@@ -206,6 +211,8 @@ func printOpenAIHelp() {
 Environment variable:
 
     OPENAI_API_KEY    API key for OpenAI
+
+    OPENAI_BASE_URL   Override API base URL (default: https://api.openai.com/v1)
 
 Also reads from .env files in the current directory, the binary directory,
 or ~/.imagen/.env.
