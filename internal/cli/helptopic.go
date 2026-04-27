@@ -13,6 +13,8 @@ func PrintHelpTopic(topic string) {
 		printGoogleHelp()
 	case "grok", "xai":
 		printXAIHelp()
+	case "openai", "gpt-image":
+		printOpenAIHelp()
 	default:
 		fmt.Fprintf(os.Stderr, "unknown help topic: %q\n\n", topic)
 		PrintHelp()
@@ -126,5 +128,73 @@ or ~/.imagen/.env.
     imagen -m grok -s 2K -a 16:9 "sunset over mountains"
     imagen -m grok -a 2:1 "cinematic landscape"
     imagen -m grok -r photo.jpg "turn this into a watercolor painting"
+`)
+}
+
+func printOpenAIHelp() {
+	fmt.Print(`# OpenAI Image Generation
+
+## Authentication
+
+Environment variable:
+
+    OPENAI_API_KEY    API key for OpenAI
+
+Also reads from .env files in the current directory, the binary directory,
+or ~/.imagen/.env.
+
+## Models
+
+    gpt-image-2              gpt-image-2-2026-04-21  (alias: oai-2)
+    gpt-image-1.5            gpt-image-1.5           (alias: oai-15)
+    gpt-image-1              gpt-image-1
+    gpt-image-1-mini         gpt-image-1-mini
+    chatgpt-image-latest     chatgpt-image-latest
+    dall-e-3                 dall-e-3
+    dall-e-2                 dall-e-2
+
+## Supported Parameters
+
+    --size SIZE
+        512, 1K, 2K, 4K  (default: 1K)
+        OpenAI native sizes are auto, 1024x1024, 1536x1024, 1024x1536.
+        Abstract sizes are mapped to the closest native size:
+          512 -> 1024x1024
+          1K  -> 1024x1024 (or landscape/portrait based on --aspect)
+          2K  -> 1024x1024 (or landscape/portrait)
+          4K  -> 1536x1024
+
+    --aspect RATIO
+        Used to select landscape (1536x1024) or portrait (1024x1536).
+        Not a native OpenAI parameter; ignored if a specific size is given.
+
+    --ref FILE
+        Reference image for editing. Can be repeated.
+        GPT image models: up to 16 images.
+        dall-e-2: up to 1 image.
+
+    -n, --count N
+        Number of images to generate.
+        dall-e-3 only supports n=1; higher counts loop.
+
+    -t, --transparent
+        Native transparency support for GPT image models.
+        Sets background=transparent and output_format=png.
+        No external keying tools needed.
+
+## Unsupported Parameters
+
+The following CLI flags are accepted but ignored by OpenAI providers:
+
+    --seed, --person, --thinking
+
+## Examples
+
+    imagen -m openai/gpt-image-2 "a cute baby sea otter"
+    imagen -m oai-2 "a futuristic city"
+    imagen -m openai/gpt-image-1.5 -s 1K -a 16:9 "sunset over mountains"
+    imagen -m openai/gpt-image-2 -t "logo for a coffee shop"
+    imagen -m openai/gpt-image-2 -r photo.jpg "turn this into a watercolor painting"
+    imagen -m openai/dall-e-3 "a highly detailed digital art of a dragon"
 `)
 }

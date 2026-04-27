@@ -36,6 +36,7 @@ type GenerateRequest struct {
 	Thinking    string
 	Quality     string
 	N           int
+	Background  string // "transparent", "opaque", or "auto" (provider-specific)
 }
 
 type GenerateResult struct {

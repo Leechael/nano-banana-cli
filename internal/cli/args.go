@@ -232,7 +232,7 @@ func ParseArgs(args []string) (Options, error) {
 }
 
 func PrintHelp() {
-	fmt.Print(`imagen – generate images via Gemini or Grok
+	fmt.Print(`imagen – generate images via Gemini, Grok, or OpenAI
 
 Usage:
   imagen [options] <prompt...>
@@ -240,11 +240,11 @@ Usage:
 
 Options:
   -h, --help            Show this help message
-  help <topic>          Show provider-specific help (google, grok)
+  help <topic>          Show provider-specific help (google, grok, openai)
   -o, --output NAME     Output file base name (default: imagen-<timestamp>)
   -s, --size SIZE       Image size: 512, 1K, 2K, 4K (default: 1K)
   -a, --aspect RATIO    Aspect ratio (e.g. 16:9, 4:3, 1:1)
-  -m, --model MODEL     Model or alias: flash, pro, grok (default: google/flash)
+  -m, --model MODEL     Model or alias: flash, pro, grok, oai-2 (default: google/flash)
   -n, --count N         Number of images to generate (default: 1)
   -d, --dir DIR         Output directory (default: current directory)
   -r, --ref FILE        Reference image (can be repeated)
@@ -253,7 +253,7 @@ Options:
       --person MODE     Person generation: ALL, ADULT, NONE (google only)
       --thinking LEVEL  Thinking level: minimal, low, medium, high (flash only)
       --quality LEVEL   Output quality: low, medium, high (grok only)
-      --api-key KEY     API key (or set GEMINI_API_KEY / XAI_API_KEY)
+      --api-key KEY     API key (or set GEMINI_API_KEY / XAI_API_KEY / OPENAI_API_KEY)
       --costs           Show accumulated cost summary
       --json            JSON output mode
       --plain           Plain output mode (filenames only)
@@ -267,6 +267,7 @@ Examples:
   imagen "a cat in a spacesuit"
   imagen -s 2K -a 16:9 "sunset over mountains"
   imagen -m xai/grok "a futuristic city"
+  imagen -m openai/gpt-image-2 "a cute baby sea otter"
   imagen -r style.png "apply this style to a forest"
   imagen --json "logo for a coffee shop" | jq .files
   imagen --costs
@@ -274,16 +275,20 @@ Examples:
 Envs:
   GEMINI_API_KEY        API key for Google Gemini models
   XAI_API_KEY           API key for xAI Grok models
+  OPENAI_API_KEY        API key for OpenAI image models
 
 Supported Models:
   google/gemini-2.5-flash-image            aliases: nb
   google/gemini-3.1-flash-image-preview    aliases: flash, nb2
   google/gemini-3-pro-image-preview        aliases: pro, nb-pro
   xai/grok-imagine-image                   aliases: grok, grok-imagine
+  openai/gpt-image-2                       gpt-image-2-2026-04-21 (alias: oai-2)
+  openai/gpt-image-1.5                     gpt-image-1.5 (alias: oai-15)
 
 Help Topics:
   google, gemini           Google Gemini provider details
   grok, xai                xAI Grok provider details
+  openai, gpt-image        OpenAI image generation provider details
 `)
 }
 

@@ -19,6 +19,7 @@ import (
 
 	// Register providers via init().
 	_ "github.com/leechael/imagen/provider/google"
+	_ "github.com/leechael/imagen/provider/openai"
 	_ "github.com/leechael/imagen/provider/xai"
 )
 
@@ -135,8 +136,13 @@ func main() {
 		}
 	}
 
+	isGPTImage := isOpenAIGPTImageModel(modelID)
 	if opts.Transparent {
-		genReq.Prompt += ". Place the subject on a solid bright green background (#00FF00). The background must be a single flat green color with no gradients, shadows, or variation."
+		if isGPTImage {
+			genReq.Background = "transparent"
+		} else {
+			genReq.Prompt += ". Place the subject on a solid bright green background (#00FF00). The background must be a single flat green color with no gradients, shadows, or variation."
+		}
 	}
 
 	for _, w := range warnings {
@@ -191,7 +197,7 @@ func main() {
 		icli.ExitError(errors.New("no images generated"), opts.OutputMode)
 	}
 
-	if opts.Transparent {
+	if opts.Transparent && !isGPTImage {
 		processed := make([]string, 0, len(files))
 		for _, file := range files {
 			out, rerr := removeBackground(file)
@@ -327,9 +333,28 @@ func resolveAPIKey(flagKey, providerName string) (string, error) {
 			}
 		}
 		return "", errors.New("XAI_API_KEY is required")
+	case "openai":
+		if v := strings.TrimSpace(os.Getenv("OPENAI_API_KEY")); v != "" {
+			return v, nil
+		}
+		paths := dotEnvPaths()
+		for _, p := range paths {
+			if v := icli.ReadDotEnvValue(p, "OPENAI_API_KEY"); v != "" {
+				return v, nil
+			}
+		}
+		return "", errors.New("OPENAI_API_KEY is required")
 	default:
 		return "", fmt.Errorf("no API key resolution defined for provider %q", providerName)
 	}
+}
+
+func isOpenAIGPTImageModel(modelID string) bool {
+	switch modelID {
+	case "gpt-image-2", "gpt-image-2-2026-04-21", "gpt-image-1.5", "gpt-image-1", "gpt-image-1-mini", "chatgpt-image-latest":
+		return true
+	}
+	return strings.HasPrefix(modelID, "gpt-image-")
 }
 
 func dotEnvPaths() []string {
