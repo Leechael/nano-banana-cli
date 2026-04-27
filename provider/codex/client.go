@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -104,9 +105,13 @@ type Client struct {
 
 // New returns a new Codex provider.
 func New(apiKey string) *Client {
+	baseURL := defaultBaseURL
+	if v := os.Getenv("CODEX_BASE_URL"); v != "" {
+		baseURL = strings.TrimSuffix(v, "/")
+	}
 	return &Client{
 		apiKey:  apiKey,
-		baseURL: defaultBaseURL,
+		baseURL: baseURL,
 		http:    &http.Client{Timeout: 300 * time.Second},
 	}
 }
@@ -121,6 +126,7 @@ func (c *Client) Capabilities(_ string) provider.Capability {
 		SupportsThinking:    false,
 		SupportsReferences:  false,
 		SupportsBatch:       false,
+		SupportsQuality:     true,
 		Sizes:               []string{"1024x1024", "1536x1024", "1024x1536"},
 		MaxReferences:       0,
 	}
@@ -138,6 +144,12 @@ func (c *Client) Generate(ctx context.Context, req provider.GenerateRequest) (*p
 	}
 	meta, _ := resolveTier(modelID)
 
+	// Allow --quality flag to override the tier default.
+	quality := meta.Quality
+	if req.Quality != "" {
+		quality = req.Quality
+	}
+
 	size, warnings := mapSize(req.Size, req.AspectRatio)
 	background := defaultBackground
 	if req.Background != "" {
@@ -147,6 +159,7 @@ func (c *Client) Generate(ctx context.Context, req provider.GenerateRequest) (*p
 	apiReq := responsesRequest{
 		Model:        defaultChatModel,
 		Store:        false,
+		Stream:       true,
 		Instructions: "You are an assistant that must fulfill image generation requests by using the image_generation tool when provided.",
 		Input: []inputItem{
 			{
@@ -162,7 +175,7 @@ func (c *Client) Generate(ctx context.Context, req provider.GenerateRequest) (*p
 				Type:          "image_generation",
 				Model:         defaultAPIModel,
 				Size:          size,
-				Quality:       meta.Quality,
+				Quality:       quality,
 				OutputFormat:  "png",
 				Background:    background,
 				PartialImages: 1,
@@ -281,6 +294,12 @@ func mapSize(size, aspect string) (string, []string) {
 // extractImageB64 reads an SSE stream and extracts the base64 image.
 func (c *Client) extractImageB64(r io.Reader) (string, error) {
 	scanner := bufio.NewScanner(r)
+	// Increase buffer beyond the default 64 KiB — SSE data lines can carry
+	// large base64-encoded image payloads.
+	const maxCapacity = 8 * 1024 * 1024 // 8 MiB
+	buf := make([]byte, 64*1024)
+	scanner.Buffer(buf, maxCapacity)
+
 	var currentEvent string
 	var currentData strings.Builder
 
@@ -386,6 +405,7 @@ func digString(m map[string]any, keys ...string) string {
 type responsesRequest struct {
 	Model        string      `json:"model"`
 	Store        bool        `json:"store"`
+	Stream       bool        `json:"stream"`
 	Instructions string      `json:"instructions"`
 	Input        []inputItem `json:"input"`
 	Tools        []toolItem  `json:"tools"`

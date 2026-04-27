@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -94,9 +95,13 @@ type Client struct {
 
 // New returns a new xAI provider.
 func New(apiKey string) *Client {
+	baseURL := defaultBaseURL
+	if v := os.Getenv("XAI_BASE_URL"); v != "" {
+		baseURL = strings.TrimSuffix(v, "/")
+	}
 	return &Client{
 		apiKey:  apiKey,
-		baseURL: defaultBaseURL,
+		baseURL: baseURL,
 		http:    &http.Client{Timeout: 120 * time.Second},
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -97,9 +98,13 @@ type Client struct {
 
 // New returns a new OpenAI provider.
 func New(apiKey string) *Client {
+	baseURL := defaultBaseURL
+	if v := os.Getenv("OPENAI_BASE_URL"); v != "" {
+		baseURL = strings.TrimSuffix(v, "/")
+	}
 	return &Client{
 		apiKey:  apiKey,
-		baseURL: defaultBaseURL,
+		baseURL: baseURL,
 		http:    &http.Client{Timeout: 180 * time.Second},
 	}
 }
