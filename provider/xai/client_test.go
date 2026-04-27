@@ -297,6 +297,49 @@ func TestGenerate_EmptyResponseData(t *testing.T) {
 	}
 }
 
+func TestGenerate_BatchesPastMaxBatchSize(t *testing.T) {
+	imgData := base64.StdEncoding.EncodeToString([]byte("img"))
+	var requestNs []int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var req generateAPIRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Fatal(err)
+		}
+		requestNs = append(requestNs, req.N)
+		imgs := make([]generateAPIImageData, req.N)
+		for i := range imgs {
+			imgs[i] = generateAPIImageData{B64JSON: imgData}
+		}
+		resp := generateAPIResponse{Data: imgs, Model: "grok-imagine-image"}
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(resp)
+	}))
+	defer server.Close()
+
+	c := New("test-key")
+	c.baseURL = server.URL
+
+	result, err := c.Generate(context.Background(), provider.GenerateRequest{
+		Prompt: "many images",
+		N:      15,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(requestNs) != 2 {
+		t.Fatalf("expected 2 API calls, got %d", len(requestNs))
+	}
+	if requestNs[0] != 10 {
+		t.Errorf("first batch N = %d, want 10", requestNs[0])
+	}
+	if requestNs[1] != 5 {
+		t.Errorf("second batch N = %d, want 5", requestNs[1])
+	}
+	if len(result.Images) != 15 {
+		t.Errorf("total images = %d, want 15", len(result.Images))
+	}
+}
+
 func TestGenerate_TooManyReferences(t *testing.T) {
 	c := New("test-key")
 	refs := make([]provider.Reference, 6)

@@ -62,7 +62,7 @@ or ~/.imagen/.env.
         Reference image. Can be repeated; up to 10 images.
 
     -n, --count N
-        Number of images to generate (max 4 per API call; higher counts loop).
+        Number of images to generate.
 
 ## Examples
 

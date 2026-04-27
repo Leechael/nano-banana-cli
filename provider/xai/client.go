@@ -16,6 +16,7 @@ import (
 
 const defaultBaseURL = "https://api.x.ai/v1"
 const defaultModel = "grok-imagine-image"
+const maxBatchSize = 10
 
 var costRates = map[string]float64{
 	"grok-imagine-image": 0.07,
@@ -152,6 +153,21 @@ func mapSize(size string) (resolution string, warnings []string) {
 }
 
 func (c *Client) generate(ctx context.Context, model, prompt string, n int, aspectRatio, resolution string, warnings []string) (*provider.GenerateResult, error) {
+	result := &provider.GenerateResult{Model: model, Warnings: warnings}
+	for remaining := n; remaining > 0; {
+		batch := min(remaining, maxBatchSize)
+		res, err := c.callGenerate(ctx, model, prompt, batch, aspectRatio, resolution)
+		if err != nil {
+			return nil, err
+		}
+		result.Images = append(result.Images, res.Images...)
+		result.Cost += res.Cost
+		remaining -= batch
+	}
+	return result, nil
+}
+
+func (c *Client) callGenerate(ctx context.Context, model, prompt string, n int, aspectRatio, resolution string) (*provider.GenerateResult, error) {
 	apiReq := generateAPIRequest{
 		Model:          model,
 		Prompt:         prompt,
@@ -197,7 +213,7 @@ func (c *Client) generate(ctx context.Context, model, prompt string, n int, aspe
 		return nil, fmt.Errorf("parsing response: %w", err)
 	}
 
-	return c.buildResult(model, apiResp, warnings)
+	return c.buildResult(model, apiResp, nil)
 }
 
 func (c *Client) edit(ctx context.Context, model, prompt string, refs []provider.Reference, n int, aspectRatio, resolution string, warnings []string) (*provider.GenerateResult, error) {
@@ -211,6 +227,21 @@ func (c *Client) edit(ctx context.Context, model, prompt string, refs []provider
 		images = append(images, fmt.Sprintf("data:%s;base64,%s", ref.MIMEType, encoded))
 	}
 
+	result := &provider.GenerateResult{Model: model, Warnings: warnings}
+	for remaining := n; remaining > 0; {
+		batch := min(remaining, maxBatchSize)
+		res, err := c.callEdit(ctx, model, prompt, images, batch, aspectRatio, resolution)
+		if err != nil {
+			return nil, err
+		}
+		result.Images = append(result.Images, res.Images...)
+		result.Cost += res.Cost
+		remaining -= batch
+	}
+	return result, nil
+}
+
+func (c *Client) callEdit(ctx context.Context, model, prompt string, images []string, n int, aspectRatio, resolution string) (*provider.GenerateResult, error) {
 	apiReq := editAPIRequest{
 		Model:          model,
 		Prompt:         prompt,
@@ -257,7 +288,7 @@ func (c *Client) edit(ctx context.Context, model, prompt string, refs []provider
 		return nil, fmt.Errorf("parsing response: %w", err)
 	}
 
-	return c.buildResult(model, apiResp, warnings)
+	return c.buildResult(model, apiResp, nil)
 }
 
 func (c *Client) buildResult(model string, apiResp generateAPIResponse, warnings []string) (*provider.GenerateResult, error) {
