@@ -40,6 +40,13 @@ func main() {
 		return
 	}
 
+	if opts.ShowStatus {
+		if err := printStatus(context.Background(), opts.OutputMode); err != nil {
+			icli.ExitError(err, opts.OutputMode)
+		}
+		return
+	}
+
 	icli.MigrateCostLog()
 
 	if opts.ShowCosts {

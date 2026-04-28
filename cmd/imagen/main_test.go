@@ -88,6 +88,32 @@ func TestParseArgs_CostsMode(t *testing.T) {
 	}
 }
 
+func TestParseArgs_StatusCommand(t *testing.T) {
+	opts, err := icli.ParseArgs([]string{"status"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !opts.ShowStatus {
+		t.Error("ShowStatus should be true")
+	}
+	if opts.Prompt != "" {
+		t.Errorf("prompt = %q, want empty", opts.Prompt)
+	}
+}
+
+func TestParseArgs_StatusFlag(t *testing.T) {
+	opts, err := icli.ParseArgs([]string{"--status", "--json"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !opts.ShowStatus {
+		t.Error("ShowStatus should be true")
+	}
+	if opts.OutputMode != icli.ModeJSON {
+		t.Errorf("mode = %q, want %q", opts.OutputMode, icli.ModeJSON)
+	}
+}
+
 func TestParseArgs_JQ(t *testing.T) {
 	opts, err := icli.ParseArgs([]string{"--jq", ".files", "test"})
 	if err != nil {

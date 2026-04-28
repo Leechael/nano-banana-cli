@@ -226,6 +226,7 @@ imagen help google
 | `--quality` | model default | Output quality: `low`, `medium`, `high` (grok, codex) |
 | `--api-key` | — | API key override |
 | `--costs` | — | Show accumulated cost summary |
+| `--status` | — | Check provider API keys, base URLs, lightweight auth, and available credit-query support |
 | `--json` | — | JSON output to stdout |
 | `--plain` | — | Plain output — filenames only |
 | `--jq EXPR` | — | Filter JSON output (requires `--json`) |
@@ -279,6 +280,17 @@ imagen --costs --json          # machine-readable, per-provider breakdown
 ```
 
 On first run, if `~/.nano-banana/costs.json` exists and `~/.imagen/costs.json` does not, the log is migrated automatically.
+
+## Provider Status
+
+Check the provider configuration visible to the current process:
+
+```bash
+imagen status
+imagen status --json
+```
+
+`status` only reads current environment values. It does not scan `.env` files directly. If your shell or process manager loads `.env` into the process environment, those values are naturally included.
 
 ## Go Library
 

@@ -38,6 +38,7 @@ type Options struct {
 	ThinkingLevel    string
 	Quality          string
 	ShowCosts        bool
+	ShowStatus       bool
 	OutputMode       OutputMode
 	JQ               string
 	Count            int
@@ -74,6 +75,8 @@ func ParseArgs(args []string) (Options, error) {
 			opts.ShowVersion = true
 		case "--costs":
 			opts.ShowCosts = true
+		case "--status":
+			opts.ShowStatus = true
 		case "--json":
 			opts.OutputMode = ModeJSON
 		case "--plain":
@@ -202,6 +205,8 @@ func ParseArgs(args []string) (Options, error) {
 			}
 		case "version":
 			opts.ShowVersion = true
+		case "status":
+			opts.ShowStatus = true
 		default:
 			if strings.HasPrefix(a, "-") {
 				return opts, fmt.Errorf("unknown option: %s", a)
@@ -218,7 +223,7 @@ func ParseArgs(args []string) (Options, error) {
 		return opts, nil
 	}
 
-	if !opts.ShowCosts {
+	if !opts.ShowCosts && !opts.ShowStatus {
 		opts.Prompt = strings.TrimSpace(strings.Join(promptParts, " "))
 		if opts.Prompt == "" {
 			if stdinPrompt, err := ReadStdinPipe(); err == nil && stdinPrompt != "" {
@@ -237,6 +242,7 @@ func PrintHelp() {
 Usage:
   imagen [options] <prompt...>
   imagen help <topic>
+  imagen status
 
 Options:
   -h, --help            Show this help message
@@ -255,6 +261,7 @@ Options:
       --quality LEVEL   Output quality: low, medium, high (grok, codex)
       --api-key KEY     API key (or set GEMINI_API_KEY / XAI_API_KEY / OPENAI_API_KEY / CODEX_ACCESS_TOKEN)
       --costs           Show accumulated cost summary
+      --status          Check provider API keys, base URLs, and lightweight auth
       --json            JSON output mode
       --plain           Plain output mode (filenames only)
       --jq EXPR         Filter JSON output with jq expression
