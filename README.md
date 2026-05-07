@@ -1,28 +1,16 @@
 # imagen — Multi-Provider AI Image Generation CLI & Go Library
 
-**imagen** is a fast, lightweight command-line tool for generating and editing images with multiple AI providers. Use it from your terminal to create images with [Google Gemini](https://ai.google.dev/), [xAI Grok](https://x.ai/), [OpenAI GPT Image 2](https://platform.openai.com/), or [ChatGPT/Codex](https://chatgpt.com/) — no OpenAI org certification required for Codex.
+Generate and edit images from your terminal with [Google Gemini](https://ai.google.dev/), [xAI Grok](https://x.ai/), [OpenAI GPT Image](https://platform.openai.com/), or [ChatGPT/Codex](https://chatgpt.com/) — switch providers with a single flag, no workflow changes required. An open-source alternative to provider-locked image generation tools.
 
-- **Generate images** from text prompts in one command
-- **Edit images** with reference images (style transfer, inpainting)
-- **Transparent backgrounds** — native API support for OpenAI/Codex, green-screen fallback for others
-- **Batch generation** across all supported providers
-- **Built-in cost tracking** per generation with per-provider breakdowns
-- **Go library** for embedding image generation into your own applications
-
-```bash
-# Generate an image with OpenAI GPT Image 2
-imagen -m openai/gpt-image-2 "a serene mountain lake at dawn"
-
-# Generate via ChatGPT/Codex (no API key needed)
-imagen -m codex-2 "a cute baby sea otter"
-
-# Create transparent PNGs for design work
-imagen -m codex-2 -t "logo for a coffee shop"
-```
+[![CI](https://github.com/leechael/imagen/actions/workflows/go-ci.yml/badge.svg)](https://github.com/leechael/imagen/actions/workflows/go-ci.yml)
+[![Release](https://img.shields.io/github/v/release/leechael/imagen?style=flat-square)](https://github.com/leechael/imagen/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/leechael/imagen?style=flat-square)](https://github.com/leechael/imagen/stargazers)
 
 <!-- omit in toc -->
 ## Table of Contents
 
+- [Quick Start](#quick-start)
 - [Features](#features)
 - [Supported Providers & Models](#supported-providers--models)
 - [Installation](#installation)
@@ -33,19 +21,50 @@ imagen -m codex-2 -t "logo for a coffee shop"
 - [Transparent Background](#transparent-background)
 - [Cost Tracking](#cost-tracking)
 - [Go Library](#go-library)
-- [Development](#development)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Quick Start
+
+**1. Install**
+
+```bash
+# macOS (Apple Silicon)
+curl -L https://github.com/leechael/imagen/releases/latest/download/imagen_darwin_arm64.tar.gz | tar xz
+sudo mv imagen /usr/local/bin/
+```
+
+See [Installation](#installation) for other platforms and install methods.
+
+**2. Configure**
+
+```bash
+export GEMINI_API_KEY=your_key_here        # Google (default provider)
+# or
+export OPENAI_API_KEY=your_key_here        # OpenAI
+export CODEX_ACCESS_TOKEN=your_chatgpt_token  # Codex — no API key needed
+```
+
+**3. Run**
+
+```bash
+imagen "a serene mountain lake at dawn"
+imagen -m codex-2 "a cute baby sea otter"
+imagen -m openai/gpt-image-2 -t "logo for a coffee shop"  # transparent PNG
+```
 
 ## Features
 
-| Feature | Description |
-|---|---|
-| **Multi-provider** | Switch between Google Gemini, xAI Grok, OpenAI, and ChatGPT/Codex without changing your workflow |
-| **Transparent backgrounds** | Native `background=transparent` for OpenAI GPT Image 2 and Codex; pure-Go green-screen keying for Google and xAI |
-| **Image editing** | Upload reference images for style transfer and inpainting (up to 16 images with OpenAI GPT Image 2) |
-| **Batch generation** | Generate multiple variations in a single command |
-| **Cost tracking** | Every generation logged to `~/.imagen/costs.json` with per-provider summaries |
-| **Flexible sizing** | Abstract sizes (`512`, `1K`, `2K`, `4K`) automatically mapped to each provider's native resolutions |
-| **Go library** | Import as a package and register providers via blank imports |
+| | Feature | Description |
+|---|---|---|
+| ⚡ | **Multi-provider** | Switch between Google Gemini, xAI Grok, OpenAI, and ChatGPT/Codex without changing your workflow |
+| 🪟 | **Transparent backgrounds** | Native `background=transparent` for OpenAI GPT Image 2 and Codex; pure-Go green-screen keying for Google and xAI |
+| ✏️ | **Image editing** | Upload reference images for style transfer and inpainting (up to 16 images with OpenAI GPT Image 2) |
+| 📦 | **Batch generation** | Generate multiple variations in a single command |
+| 💰 | **Cost tracking** | Every generation logged to `~/.imagen/costs.json` with per-provider summaries |
+| 📐 | **Flexible sizing** | Abstract sizes (`512`, `1K`, `2K`, `4K`) automatically mapped to each provider's native resolutions |
+| 🔧 | **Go library** | Import as a package and register providers via blank imports |
 
 ## Supported Providers & Models
 
@@ -79,13 +98,35 @@ imagen -m codex-2 "..."
 
 ## Installation
 
+### Download a release binary (recommended)
+
+Pre-built binaries for macOS, Linux, and Windows are available on the [GitHub Releases](https://github.com/leechael/imagen/releases) page.
+
+```bash
+# macOS (Apple Silicon)
+curl -L https://github.com/leechael/imagen/releases/latest/download/imagen_darwin_arm64.tar.gz | tar xz
+sudo mv imagen /usr/local/bin/
+
+# macOS (Intel)
+curl -L https://github.com/leechael/imagen/releases/latest/download/imagen_darwin_amd64.tar.gz | tar xz
+sudo mv imagen /usr/local/bin/
+
+# Linux (x86_64)
+curl -L https://github.com/leechael/imagen/releases/latest/download/imagen_linux_amd64.tar.gz | tar xz
+sudo mv imagen /usr/local/bin/
+```
+
+### Install with Go
+
 Requires Go 1.25+.
 
 ```bash
-# Install the CLI
 go install github.com/leechael/imagen/cmd/imagen@latest
+```
 
-# Or clone and build from source
+### Build from source
+
+```bash
 git clone https://github.com/leechael/imagen.git
 cd imagen
 make build   # outputs bin/imagen
@@ -364,3 +405,40 @@ make build   # build binary to bin/imagen
 make lint    # vet + format check
 make ci      # run full CI pipeline (requires pre-commit)
 ```
+
+## FAQ
+
+**Why use Codex instead of the OpenAI API?**
+Codex uses your existing ChatGPT browser session, so there's no need for OpenAI API access or org certification. If you have a ChatGPT Plus subscription, you can generate images immediately.
+
+**My image size isn't what I requested — why?**
+Not every provider supports every size. imagen maps unsupported sizes to the nearest available resolution and emits a warning. See [Provider Capabilities](#provider-capabilities) for the exact fallback table.
+
+**Why is my transparent background a green image instead of transparent PNG?**
+Google and xAI don't have a native transparency API. imagen appends a green screen prompt and post-processes the result. If the subject color is close to green, the keying may be imprecise — use OpenAI or Codex for reliable transparency.
+
+**Where are generated images saved?**
+In the current directory by default, named `imagen-<timestamp>.png`. Use `-o` to set the filename and `-d` to set the directory.
+
+**The Codex token stopped working.**
+ChatGPT session tokens expire. Repeat the [Getting a ChatGPT/Codex Access Token](#getting-a-chatgptcodex-access-token) steps to get a fresh one.
+
+**How do I use a custom OpenAI-compatible endpoint?**
+Set `OPENAI_BASE_URL` to your endpoint's base URL. This works with any API that implements the OpenAI images API surface.
+
+## Contributing
+
+1. Fork the repository and create a feature branch from `main`.
+2. Make your changes. Add or update tests as needed — run `make test` to verify.
+3. Run `make ci` before submitting to catch lint and format issues.
+4. Open a pull request. Describe what the change does and why.
+
+Bug reports and feature requests are welcome via [GitHub Issues](https://github.com/leechael/imagen/issues). For questions about provider behavior or API quirks, open a discussion.
+
+## License
+
+MIT — see [LICENSE](LICENSE) for the full text.
+
+---
+
+[![Star History Chart](https://api.star-history.com/svg?repos=leechael/imagen&type=Date)](https://star-history.com/#leechael/imagen&Date)
